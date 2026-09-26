@@ -103,6 +103,34 @@
     start();
   });
 
+  document.querySelectorAll('[data-accordion]').forEach((details) => {
+    const summary = details.querySelector('summary');
+    const body = summary.nextElementSibling;
+    let anim = null;
+    let lastClosing = false;
+
+    summary.addEventListener('click', (e) => {
+      if (reduceMotion || !body.animate) return;
+      e.preventDefault();
+      const closing = anim ? !lastClosing : details.open;
+      lastClosing = closing;
+      anim?.cancel();
+      const from = body.offsetHeight;
+      if (!closing) details.open = true;
+      const to = closing ? 0 : body.scrollHeight;
+      body.style.overflow = 'hidden';
+      anim = body.animate(
+        [{ height: `${closing ? from : 0}px`, opacity: closing ? 1 : 0 }, { height: `${to}px`, opacity: closing ? 0 : 1 }],
+        { duration: 380, easing: 'cubic-bezier(.22, 1, .36, 1)' }
+      );
+      anim.onfinish = () => {
+        if (closing) details.open = false;
+        body.style.overflow = '';
+        anim = null;
+      };
+    });
+  });
+
   const menuBtn = document.querySelector('[data-menu-btn]');
   const drawer = document.querySelector('[data-drawer]');
   if (menuBtn && drawer) {
