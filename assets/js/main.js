@@ -2,10 +2,18 @@
   const header = document.querySelector('[data-header]');
   const pagetop = document.querySelector('[data-pagetop]');
 
+  const flow = document.querySelector('[data-flow]');
+
   const onScroll = () => {
     const y = window.scrollY;
+    const vh = window.innerHeight;
     header?.classList.toggle('is-scrolled', y > 8);
-    pagetop?.classList.toggle('is-show', y > window.innerHeight * 0.8);
+    pagetop?.classList.toggle('is-show', y > vh * 0.8);
+    if (flow) {
+      const r = flow.getBoundingClientRect();
+      const p = Math.min(Math.max((vh * 0.75 - r.top) / r.height, 0), 1);
+      flow.style.setProperty('--progress', p.toFixed(3));
+    }
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
