@@ -2,18 +2,11 @@
   const header = document.querySelector('[data-header]');
   const pagetop = document.querySelector('[data-pagetop]');
 
-  const flow = document.querySelector('[data-flow]');
-
   const onScroll = () => {
     const y = window.scrollY;
     const vh = window.innerHeight;
     header?.classList.toggle('is-scrolled', y > 8);
     pagetop?.classList.toggle('is-show', y > vh * 0.8);
-    if (flow) {
-      const r = flow.getBoundingClientRect();
-      const p = Math.min(Math.max((vh * 0.75 - r.top) / r.height, 0), 1);
-      flow.style.setProperty('--progress', p.toFixed(3));
-    }
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
@@ -146,19 +139,6 @@
     runParallax();
   }
 
-  const stage = document.querySelector('.hero__stage');
-  if (stage && !reduceMotion && matchMedia('(hover: hover) and (min-width: 960px)').matches) {
-    const layers = stage.querySelectorAll('.hero__staff, .hero__bubble');
-    stage.closest('.hero').addEventListener('pointermove', (e) => {
-      const x = e.clientX / window.innerWidth - 0.5;
-      const y = e.clientY / window.innerHeight - 0.5;
-      layers.forEach((el, i) => {
-        const depth = 6 + (i % 3) * 5;
-        el.style.transform = `translate(${(x * depth).toFixed(1)}px, ${(y * depth).toFixed(1)}px)`;
-      });
-    });
-  }
-
   const navLinks = [...document.querySelectorAll('.gnav__list a[href^="#"]')];
   const spyTargets = navLinks.map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean);
   if (spyTargets.length && 'IntersectionObserver' in window) {
@@ -171,6 +151,12 @@
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
     spyTargets.forEach((t) => spy.observe(t));
+    const hero = document.querySelector('.hero');
+    if (hero) {
+      new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) navLinks.forEach((a) => a.classList.remove('is-current'));
+      }, { rootMargin: '-45% 0px -50% 0px' }).observe(hero);
+    }
   }
 
   document.querySelectorAll('[data-accordion]').forEach((details) => {
