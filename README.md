@@ -39,6 +39,23 @@ add_action('wp_enqueue_scripts', function () {
 
 4. 親テーマ側の viewport 設定が `width=1480` になっている場合は、Cocoon の「モバイル」設定でレスポンシブ表示に戻してください
 
+## Vercel へのデプロイ
+
+ビルド不要の静的サイトなので、設定はそのままで動きます。
+
+1. Vercel の「Add New… → Project」でこのリポジトリを Import
+2. Framework Preset は **Other**、Build Command・Output Directory は空欄のまま
+3. Deploy
+
+CLI の場合は `npx vercel`（本番は `npx vercel --prod`）。
+
+### vercel.json の中身
+
+- 全ページに `X-Robots-Tag: noindex, nofollow` を付けています。確認用のデモが本番（kaiso.or.jp）の複製として検索結果に出ないようにするためです。**Vercel を本番として使う場合はこの行を削除してください**
+- 画像は7日、CSS/JS は1時間キャッシュ（ファイル名にハッシュを付けていないので短め）
+- `404.html` を置いているので、存在しないURLは専用ページが出ます
+- `README.md` は `.vercelignore` で配信対象から外しています
+
 ## 動作確認
 
 - iPhone Safari / Android Chrome / PC Chrome・Edge・Safari・Firefox の最新版
