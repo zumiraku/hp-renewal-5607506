@@ -569,7 +569,7 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
 @keyframes marker-in { to { background-size: 100% 100%; } }
 @keyframes fade-up { from { opacity: 0; transform: translateY(20px); } }
 @keyframes fade-in { from { opacity: 0; } }
-@keyframes pop-in { from { opacity: 0; transform: scale(.6); } }
+@keyframes pop-in { from { opacity: 0; scale: .6; } }
 
 .hero__tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .hero__tags li {
@@ -614,6 +614,7 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
 }
 .hero__staff {
   position: absolute;
+  transition: transform .6s var(--ease);
   width: 23%;
   aspect-ratio: 1;
   border-radius: 50%;
@@ -632,6 +633,7 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
 }
 .hero__bubble {
   position: absolute;
+  transition: transform .6s var(--ease);
   padding: .45em .9em;
   font-family: var(--ff-round);
   font-size: clamp(.75rem, .6rem + .6vw, .9375rem);
@@ -1035,6 +1037,34 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
 @media (min-width: 900px) {
   .feature__list { grid-template-columns: repeat(3, 1fr); gap: 28px; }
 }
+
+.gnav__list a.is-current { color: var(--navy); }
+.gnav__list a.is-current::after { transform: scaleX(1); }
+
+.sec-head__title::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 4px;
+  margin: .5em auto 0;
+  background: linear-gradient(90deg, var(--purple), var(--navy));
+  border-radius: 2px;
+  scale: 0 1;
+  transition: scale 1s var(--ease) .3s;
+}
+.sec-head.is-inview .sec-head__title::after,
+html:not(.js) .sec-head__title::after { scale: 1 1; }
+
+.fixed-cta { animation: cta-up .8s var(--ease) 1.6s both; }
+@keyframes cta-up { from { translate: 0 100%; } }
+.fixed-cta__item--mail svg { animation: nudge 4s ease-in-out 3s infinite; }
+@keyframes nudge {
+  0%, 86%, 100% { rotate: 0deg; }
+  90% { rotate: -12deg; }
+  94% { rotate: 10deg; }
+}
+
+.flow__item.is-inview .flow__icon { color: var(--white); background: var(--navy); transition-delay: calc(var(--d, 0s) + .5s); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -1889,7 +1919,7 @@ body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
 }
 .contact__bg {
   position: absolute;
-  inset: 0;
+  inset: -20% 0;
   z-index: -1;
   background:
     radial-gradient(circle at 12% 20%, rgb(125 98 176 / .45), transparent 40%),
