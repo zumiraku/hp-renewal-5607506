@@ -38,6 +38,71 @@
     revealTargets.forEach((el) => el.classList.add('is-inview'));
   }
 
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll('[data-slider]').forEach((slider) => {
+    const track = slider.querySelector('[data-slider-track]');
+    const items = [...track.children];
+    const prev = slider.querySelector('[data-slider-prev]');
+    const next = slider.querySelector('[data-slider-next]');
+    const dotsWrap = slider.querySelector('[data-slider-dots]');
+
+    const dots = items.map((_, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-label', `${i + 1}件目を表示`);
+      b.addEventListener('click', () => goTo(i));
+      dotsWrap?.appendChild(b);
+      return b;
+    });
+
+    const offsetOf = (i) => items[i].offsetLeft - items[0].offsetLeft;
+    const maxScroll = () => track.scrollWidth - track.clientWidth;
+    const current = () => {
+      const x = track.scrollLeft;
+      let idx = 0;
+      items.forEach((_, i) => {
+        if (Math.abs(offsetOf(i) - x) < Math.abs(offsetOf(idx) - x)) idx = i;
+      });
+      return x >= maxScroll() - 4 ? items.length - 1 : idx;
+    };
+    const goTo = (i) => {
+      const idx = Math.max(0, Math.min(i, items.length - 1));
+      track.scrollTo({ left: Math.min(offsetOf(idx), maxScroll()), behavior: reduceMotion ? 'auto' : 'smooth' });
+    };
+
+    const update = () => {
+      const idx = current();
+      dots.forEach((d, i) => d.setAttribute('aria-current', String(i === idx)));
+      if (prev) prev.disabled = track.scrollLeft <= 4;
+      if (next) next.disabled = track.scrollLeft >= maxScroll() - 4;
+    };
+
+    prev?.addEventListener('click', () => goTo(current() - 1));
+    next?.addEventListener('click', () => goTo(current() + 1));
+    let raf = 0;
+    track.addEventListener('scroll', () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    }, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+
+    if (reduceMotion) return;
+    let timer = 0;
+    let paused = false;
+    let visible = false;
+    const tick = () => {
+      if (paused || !visible) return;
+      track.scrollLeft >= maxScroll() - 4 ? goTo(0) : goTo(current() + 1);
+    };
+    const start = () => { clearInterval(timer); timer = setInterval(tick, 6000); };
+    ['mouseenter', 'focusin', 'touchstart'].forEach((ev) => slider.addEventListener(ev, () => { paused = true; }, { passive: true }));
+    ['mouseleave', 'focusout'].forEach((ev) => slider.addEventListener(ev, () => { paused = false; start(); }));
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(slider);
+    start();
+  });
+
   const menuBtn = document.querySelector('[data-menu-btn]');
   const drawer = document.querySelector('[data-drawer]');
   if (menuBtn && drawer) {
