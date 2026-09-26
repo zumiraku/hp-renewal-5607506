@@ -248,4 +248,6 @@
       if (e.matches) setOpen(false);
     });
   }
+
+  document.documentElement.setAttribute('data-ready', '');
 })();
