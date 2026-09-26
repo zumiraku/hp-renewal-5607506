@@ -10,6 +10,26 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
+  document.querySelectorAll('[data-reveal-stagger]').forEach((group) => {
+    group.querySelectorAll('[data-reveal]').forEach((el, i) => {
+      el.style.setProperty('--d', `${i * 0.12}s`);
+    });
+  });
+
+  const revealTargets = document.querySelectorAll('[data-reveal]');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-inview');
+        io.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
+    revealTargets.forEach((el) => io.observe(el));
+  } else {
+    revealTargets.forEach((el) => el.classList.add('is-inview'));
+  }
+
   const menuBtn = document.querySelector('[data-menu-btn]');
   const drawer = document.querySelector('[data-drawer]');
   if (menuBtn && drawer) {
